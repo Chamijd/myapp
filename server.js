@@ -9,7 +9,7 @@ const app = express();
 const PORT = 3000;
 
 // MongoDB Atlas URL (ඔයාගේ)
-const mongoURL = 'mongodb+srv://yifov84170:5HPjp58UeDrdMMHi@cluster0.sedhk0k.mongodb.net/myappdb?retryWrites=true&w=majority&appName=Cluster0';
+const mongoURL = 'mongodb+srv://jikew32666:nih7jgcq1pkSSyGY@cluster0.jbdxjkc.mongodb.net/myappdb?retryWrites=true&w=majority&appName=Cluster0';
 
 // Connect MongoDB
 mongoose.connect(mongoURL, {

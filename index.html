@@ -11,24 +11,49 @@
   form { display: flex; flex-direction: column; gap: 0.8rem; }
   input[type="text"], input[type="email"], input[type="password"], textarea {
     padding: 0.6rem; font-size: 1rem; border: 1px solid #ccc; border-radius: 4px; width: 100%;
+    transition: border-color 0.3s ease;
+  }
+  input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus, textarea:focus {
+    border-color: #4CAF50;
+    outline: none;
   }
   button {
     padding: 0.8rem; font-size: 1rem; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer;
+    transition: background-color 0.3s ease;
   }
   button:hover { background: #45a049; }
-  #message { margin-bottom: 1rem; font-weight: bold; text-align: center; }
+  #message {
+    margin-bottom: 1rem; font-weight: bold; text-align: center; opacity: 0; 
+    transition: opacity 0.5s ease;
+  }
+  #message.show {
+    opacity: 1;
+  }
   #login-section, #register-section, #comment-section { margin-bottom: 2rem; }
+
   #comments-list { list-style: none; padding-left: 0; }
-  .comment-item { border-bottom: 1px solid #eee; padding: 0.8rem 0; }
+  .comment-item { border-bottom: 1px solid #eee; padding: 0.8rem 0; opacity: 0; transform: translateY(10px); animation: fadeInUp 0.5s forwards; }
   .comment-user { font-weight: bold; }
   .comment-text { margin: 0.3rem 0; white-space: pre-wrap; }
   .reply-button {
     background: none; border: none; color: #007bff; cursor: pointer; font-size: 0.9rem;
+    transition: color 0.3s ease;
   }
-  .reply-form { margin-top: 0.5rem; }
+  .reply-button:hover {
+    color: #0056b3;
+  }
+  .reply-form { margin-top: 0.5rem; opacity: 0; animation: fadeIn 0.5s forwards; }
   .reply-list { margin-left: 1.5rem; border-left: 2px solid #eee; padding-left: 1rem; }
   #logout-btn { background: #e74c3c; margin-top: 1rem; }
   #logout-btn:hover { background: #c0392b; }
+
+  /* Animations */
+  @keyframes fadeIn {
+    to { opacity: 1; }
+  }
+  @keyframes fadeInUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
 </style>
 </head>
 <body>
@@ -84,33 +109,50 @@
   const commentsList = document.getElementById('comments-list');
 
   let replyingTo = null; // store comment id being replied to
+  let messageTimeout = null;
 
   // Show login or register forms
   document.getElementById('show-login-btn').onclick = () => {
-    messageDiv.textContent = '';
+    clearMessage();
     registerSection.style.display = 'none';
     loginSection.style.display = 'block';
   };
   document.getElementById('show-register-btn').onclick = () => {
-    messageDiv.textContent = '';
+    clearMessage();
     loginSection.style.display = 'none';
     registerSection.style.display = 'block';
   };
 
-  // Show message helper
+  // Show message helper with fade-in & fade-out
   function showMessage(text, success=true) {
+    clearTimeout(messageTimeout);
     messageDiv.textContent = text;
     messageDiv.style.color = success ? 'green' : 'red';
+    messageDiv.classList.add('show');
+
+    messageTimeout = setTimeout(() => {
+      messageDiv.classList.remove('show');
+    }, 4000);
+  }
+
+  function clearMessage() {
+    messageDiv.classList.remove('show');
+    clearTimeout(messageTimeout);
+    messageDiv.textContent = '';
   }
 
   // Check if logged in on page load
   async function checkLogin() {
-    const res = await fetch('/me');
-    const data = await res.json();
-    if(data.loggedIn) {
-      showMessage(`Welcome, ${data.username}!`, true);
-      showCommentsSection();
-    } else {
+    try {
+      const res = await fetch('/me');
+      const data = await res.json();
+      if(data.loggedIn) {
+        showMessage(`Welcome, ${data.username}!`, true);
+        showCommentsSection();
+      } else {
+        showRegisterSection();
+      }
+    } catch(e) {
       showRegisterSection();
     }
   }
@@ -231,41 +273,45 @@
     return li;
   }
 
-  // Show reply form under comment
+  // Show reply form for a comment
   function showReplyForm(parentLi, commentId) {
-    // Remove old reply forms
-    const oldForms = document.querySelectorAll('.reply-form');
-    oldForms.forEach(f => f.remove());
+    // If reply form already open, remove it
+    const existingReplyForm = parentLi.querySelector('.reply-form');
+    if(existingReplyForm) {
+      existingReplyForm.remove();
+      return;
+    }
+    // Close other open reply forms
+    document.querySelectorAll('.reply-form').forEach(form => form.remove());
 
-    replyingTo = commentId;
     const form = document.createElement('form');
     form.className = 'reply-form';
 
     const textarea = document.createElement('textarea');
+    textarea.required = true;
     textarea.rows = 2;
     textarea.placeholder = 'Write a reply...';
-    textarea.required = true;
-    form.appendChild(textarea);
 
     const submitBtn = document.createElement('button');
     submitBtn.type = 'submit';
-    submitBtn.textContent = 'Post Reply';
+    submitBtn.textContent = 'Send';
+
+    form.appendChild(textarea);
     form.appendChild(submitBtn);
 
-    form.onsubmit = async (e) => {
+    form.onsubmit = async e => {
       e.preventDefault();
       const replyText = textarea.value.trim();
       if(!replyText) return;
-      const res = await fetch('/comments', {
+      const res = await fetch('/reply', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ comment: replyText, replyTo: replyingTo }),
+        body: JSON.stringify({ commentId, reply: replyText }),
       });
       const data = await res.json();
       if(data.success) {
-        showMessage('Reply posted');
+        showMessage('Reply posted!');
         loadComments();
-        replyingTo = null;
       } else {
         showMessage(data.message || 'Failed to post reply', false);
       }
@@ -275,27 +321,29 @@
     textarea.focus();
   }
 
-  // Post comment submit
+  // Post new comment
   commentForm.onsubmit = async e => {
     e.preventDefault();
-    const commentText = document.getElementById('comment-input').value.trim();
+    const commentInput = document.getElementById('comment-input');
+    const commentText = commentInput.value.trim();
     if(!commentText) return;
 
-    const res = await fetch('/comments', {
+    const res = await fetch('/comment', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ comment: commentText }),
     });
     const data = await res.json();
     if(data.success) {
-      showMessage('Comment posted');
-      commentForm.reset();
+      commentInput.value = '';
+      showMessage('Comment posted!');
       loadComments();
     } else {
       showMessage(data.message || 'Failed to post comment', false);
     }
   };
 
+  // Initial check on load
   checkLogin();
 </script>
 </body>

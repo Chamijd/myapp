@@ -4,162 +4,129 @@ const session = require('express-session');
 const MongoStore = require('connect-mongo');
 const bcrypt = require('bcryptjs');
 const path = require('path');
-
 const app = express();
-const PORT = 3000;
 
-// MongoDB Atlas URL (ඔයාගේ)
-const mongoURL = 'mongodb+srv://jikew32666:nih7jgcq1pkSSyGY@cluster0.jbdxjkc.mongodb.net/myappdb?retryWrites=true&w=majority&appName=Cluster0';
+// === MongoDB Connection ===
+const MONGO_URI = 'mongodb+srv://jikew32666:nih7jgcq1pkSSyGY@cluster0.jbdxjkc.mongodb.net/autoreplydb';
 
-// Connect MongoDB
-mongoose.connect(mongoURL, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
+mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => console.log('✅ MongoDB connected'))
+  .catch(err => console.error('❌ MongoDB error:', err));
 
-// Schemas
+// === Models ===
 const UserSchema = new mongoose.Schema({
-  username: { type: String, unique: true, required: true },
-  email: { type: String, unique: true, required: true },
-  password: { type: String, required: true },
+  username: { type: String, unique: true },
+  email: String,
+  password: String,
 });
 const User = mongoose.model('User', UserSchema);
 
 const CommentSchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-  username: String,
-  comment: String,
-  replyTo: { type: mongoose.Schema.Types.ObjectId, ref: 'Comment', default: null },
-  date: { type: Date, default: Date.now },
+  user: String,
+  text: String,
+  createdAt: Date,
+  replies: [{
+    user: String,
+    text: String,
+    createdAt: Date
+  }]
 });
 const Comment = mongoose.model('Comment', CommentSchema);
 
-// Middleware
+// === Middleware ===
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
 app.use(session({
-  secret: 'verysecretkey',
+  secret: 'chama-secret-key',
   resave: false,
   saveUninitialized: false,
-  store: MongoStore.create({ mongoUrl: mongoURL }),
-  cookie: { maxAge: 1000 * 60 * 60 * 24 }, // 1 day
+  store: MongoStore.create({ mongoUrl: MONGO_URI }),
+  cookie: { maxAge: 86400000 } // 1 day
 }));
 
-// Serve static files (index.html etc)
-app.use(express.static(path.join(__dirname)));
+app.use(express.static(path.join(__dirname, 'public')));
 
-// API Routes
+// === Auth Middleware ===
+const requireLogin = (req, res, next) => {
+  if (!req.session.user) return res.status(401).json({ error: 'Not authenticated' });
+  next();
+};
+
+// === Routes ===
 
 // Register
-app.post('/register', async (req, res) => {
+app.post('/api/register', async (req, res) => {
   const { username, email, password } = req.body;
-  if(!username || !email || !password) return res.status(400).json({ success: false, message: 'All fields are required' });
+  const exists = await User.findOne({ username });
+  if (exists) return res.status(400).json({ error: 'Username already exists' });
 
-  try {
-    const existUser = await User.findOne({ $or: [{ username }, { email }] });
-    if (existUser) return res.status(400).json({ success: false, message: 'Username or email already exists' });
-
-    const hashed = await bcrypt.hash(password, 10);
-    const newUser = new User({ username, email, password: hashed });
-    await newUser.save();
-
-    // Auto login after register
-    req.session.userId = newUser._id;
-    req.session.username = newUser.username;
-
-    res.json({ success: true, username: newUser.username });
-  } catch(err) {
-    console.error(err);
-    res.status(500).json({ success: false, message: 'Server error' });
-  }
+  const hashedPassword = await bcrypt.hash(password, 10);
+  await User.create({ username, email, password: hashedPassword });
+  res.json({ message: 'Registered successfully' });
 });
 
 // Login
-app.post('/login', async (req, res) => {
+app.post('/api/login', async (req, res) => {
   const { username, password } = req.body;
-  if(!username || !password) return res.status(400).json({ success: false, message: 'All fields are required' });
+  const user = await User.findOne({ username });
+  if (!user) return res.status(400).json({ error: 'Invalid credentials' });
 
-  try {
-    const user = await User.findOne({ username });
-    if(!user) return res.status(400).json({ success: false, message: 'Invalid credentials' });
+  const match = await bcrypt.compare(password, user.password);
+  if (!match) return res.status(400).json({ error: 'Invalid credentials' });
 
-    const match = await bcrypt.compare(password, user.password);
-    if(!match) return res.status(400).json({ success: false, message: 'Invalid credentials' });
-
-    req.session.userId = user._id;
-    req.session.username = user.username;
-
-    res.json({ success: true, username: user.username });
-  } catch(err) {
-    console.error(err);
-    res.status(500).json({ success: false, message: 'Server error' });
-  }
+  req.session.user = { username: user.username };
+  res.json({ message: 'Login successful', user: req.session.user });
 });
 
 // Logout
-app.post('/logout', (req, res) => {
-  req.session.destroy(() => {
-    res.json({ success: true });
+app.post('/api/logout', (req, res) => {
+  req.session.destroy(() => res.json({ message: 'Logged out' }));
+});
+
+// Get current user
+app.get('/api/me', (req, res) => {
+  if (!req.session.user) return res.json({ user: null });
+  res.json({ user: req.session.user });
+});
+
+// Get comments
+app.get('/api/comments', async (req, res) => {
+  const comments = await Comment.find().sort({ createdAt: 1 });
+  res.json({ comments });
+});
+
+// Post comment
+app.post('/api/comments', requireLogin, async (req, res) => {
+  const { text } = req.body;
+  const comment = await Comment.create({
+    user: req.session.user.username,
+    text,
+    createdAt: new Date(),
+    replies: []
   });
+  res.json({ message: 'Comment posted', comment });
 });
 
-// Get current user session
-app.get('/me', (req, res) => {
-  if(!req.session.userId) return res.json({ loggedIn: false });
-  res.json({ loggedIn: true, username: req.session.username });
-});
+// Post reply
+app.post('/api/comments/:id/reply', requireLogin, async (req, res) => {
+  const { id } = req.params;
+  const { text } = req.body;
+  const comment = await Comment.findById(id);
+  if (!comment) return res.status(404).json({ error: 'Comment not found' });
 
-// Get comments with nested replies
-app.get('/comments', async (req, res) => {
-  const comments = await Comment.find().sort({ date: 1 }).lean();
-
-  const commentMap = {};
-  comments.forEach(c => {
-    c.replies = [];
-    commentMap[c._id] = c;
+  comment.replies.push({
+    user: req.session.user.username,
+    text,
+    createdAt: new Date()
   });
 
-  const rootComments = [];
-  comments.forEach(c => {
-    if (c.replyTo) {
-      if (commentMap[c.replyTo]) {
-        commentMap[c.replyTo].replies.push(c);
-      }
-    } else {
-      rootComments.push(c);
-    }
-  });
-
-  res.json(rootComments);
+  await comment.save();
+  res.json({ message: 'Reply posted', comment });
 });
 
-// Post comment or reply
-app.post('/comments', async (req, res) => {
-  if(!req.session.userId) return res.status(401).json({ success: false, message: 'Not logged in' });
-  const { comment, replyTo } = req.body;
-  if(!comment || comment.trim() === '') return res.status(400).json({ success: false, message: 'Empty comment' });
-
-  try {
-    const newComment = new Comment({
-      userId: req.session.userId,
-      username: req.session.username,
-      comment,
-      replyTo: replyTo || null,
-    });
-    await newComment.save();
-    res.json({ success: true, comment: newComment });
-  } catch(err) {
-    console.error(err);
-    res.status(500).json({ success: false, message: 'Server error' });
-  }
-});
-
-// SPA fallback
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
-});
-
-// Start server
+// === Start Server ===
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
+  console.log(`🚀 Server running at http://localhost:${PORT}`);
 });

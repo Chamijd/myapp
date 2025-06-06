@@ -1,572 +1,222 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>CHAMA MD WEB</title>
-<style>
-  :root {
-    --color-bg-light: #f0f2f5;
-    --color-bg-dark: #121212;
-    --color-text-light: #222;
-    --color-text-dark: #ddd;
-    --color-primary: #4CAF50;
-    --color-primary-dark: #388e3c;
-    --color-error: #e74c3c;
-  }
-
-  body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: var(--color-bg-light);
-    color: var(--color-text-light);
-    margin: 0;
-    padding: 0;
-    transition: background 0.3s ease, color 0.3s ease;
-  }
-
-  body.dark {
-    background: var(--color-bg-dark);
-    color: var(--color-text-dark);
-  }
-
-  #container {
-    max-width: 600px;
-    margin: 2rem auto;
-    background: white;
-    padding: 1.5rem;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    transition: background 0.3s ease, color 0.3s ease;
-  }
-
-  body.dark #container {
-    background: #222;
-    box-shadow: 0 2px 8px rgba(255,255,255,0.1);
-  }
-
-  h2 {
-    text-align: center;
-    margin-bottom: 1rem;
-  }
-
-  form {
-    display: flex;
-    flex-direction: column;
-    gap: 0.8rem;
-  }
-
-  input[type="text"], input[type="email"], input[type="password"], textarea {
-    padding: 0.6rem;
-    font-size: 1rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    width: 100%;
-    background: white;
-    color: var(--color-text-light);
-    transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
-  }
-
-  body.dark input[type="text"], 
-  body.dark input[type="email"], 
-  body.dark input[type="password"], 
-  body.dark textarea {
-    background: #333;
-    color: var(--color-text-dark);
-    border-color: #555;
-  }
-
-  button {
-    padding: 0.8rem;
-    font-size: 1rem;
-    background: var(--color-primary);
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background 0.3s ease;
-  }
-
-  button:hover {
-    background: var(--color-primary-dark);
-  }
-
-  #message {
-    margin-bottom: 1rem;
-    font-weight: bold;
-    text-align: center;
-  }
-
-  #message.error {
-    color: var(--color-error);
-  }
-
-  #login-section, #register-section, #comment-section {
-    margin-bottom: 2rem;
-  }
-
-  #comments-list {
-    list-style: none;
-    padding-left: 0;
-  }
-
-  .comment-item {
-    border-bottom: 1px solid #eee;
-    padding: 0.8rem 0;
-  }
-
-  body.dark .comment-item {
-    border-color: #444;
-  }
-
-  .comment-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .comment-user {
-    font-weight: bold;
-  }
-
-  .comment-date {
-    font-size: 0.8rem;
-    color: #666;
-  }
-
-  body.dark .comment-date {
-    color: #aaa;
-  }
-
-  .comment-text {
-    margin: 0.3rem 0;
-    white-space: pre-wrap;
-  }
-
-  .reply-button {
-    background: none;
-    border: none;
-    color: #007bff;
-    cursor: pointer;
-    font-size: 0.9rem;
-  }
-
-  .reply-button:hover {
-    text-decoration: underline;
-  }
-
-  .reply-form {
-    margin-top: 0.5rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .reply-list {
-    margin-left: 1.5rem;
-    border-left: 2px solid #eee;
-    padding-left: 1rem;
-  }
-
-  body.dark .reply-list {
-    border-color: #444;
-  }
-
-  #logout-btn {
-    background: #e74c3c;
-    margin-top: 1rem;
-  }
-
-  #logout-btn:hover {
-    background: #c0392b;
-  }
-
-  /* Cancel Reply button styling */
-  .cancel-reply-btn {
-    background: #e74c3c;
-    color: white;
-    border: none;
-    padding: 0.4rem 0.8rem;
-    font-size: 0.85rem;
-    border-radius: 4px;
-    cursor: pointer;
-    align-self: flex-start;
-    transition: background 0.3s ease;
-  }
-
-  .cancel-reply-btn:hover {
-    background: #c0392b;
-  }
-
-  /* Dark/Light mode toggle button */
-  #mode-toggle {
-    position: fixed;
-    top: 1rem;
-    right: 1rem;
-    background: var(--color-primary);
-    border: none;
-    color: white;
-    font-size: 1.2rem;
-    padding: 0.5rem 0.8rem;
-    border-radius: 30px;
-    cursor: pointer;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-    transition: background 0.3s ease;
-    user-select: none;
-    z-index: 9999;
-  }
-
-  #mode-toggle:hover {
-    background: var(--color-primary-dark);
-  }
-</style>
+  <title>CHAMA MD WEB</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <style>
+    :root {
+      --bg-dark: #000428;
+      --bg-light: #ffffff;
+      --text-dark: #ffffff;
+      --text-light: #000000;
+      --highlight: #ffdd57;
+    }
+    body {
+      background: var(--bg-dark);
+      color: var(--text-dark);
+      font-family: sans-serif;
+      padding: 30px;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+    body.light {
+      background: var(--bg-light);
+      color: var(--text-light);
+    }
+    input, textarea {
+      width: 80%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 10px;
+      border: none;
+      outline: none;
+      font-size: 16px;
+    }
+    button {
+      background: linear-gradient(to right,#9b00ff,#ff0076);
+      color: white;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 12px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 16px;
+      margin: 5px;
+    }
+    .comment {
+      background-color: rgba(255,255,255,0.1);
+      padding: 15px;
+      border-radius: 12px;
+      margin: 10px auto;
+      max-width: 600px;
+      text-align: left;
+      box-shadow: 0 0 10px rgba(255,255,255,0.2);
+    }
+    .comment strong {
+      color: var(--highlight);
+      font-size: 18px;
+    }
+    .comment small {
+      color: #ccc;
+      font-size: 12px;
+    }
+    #comments {
+      margin-top: 30px;
+    }
+    .reply {
+      margin-top: 10px;
+      padding-left: 20px;
+      font-size: 14px;
+      color: #f1f1f1;
+    }
+    .reply small {
+      font-size: 11px;
+      color: #ccc;
+    }
+    .theme-toggle {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      cursor: pointer;
+    }
+    #auth, #dashboard { display: none; }
+  </style>
 </head>
 <body>
-<button id="mode-toggle" aria-label="Toggle Dark/Light Mode">🌙</button>
-<div id="container">
+  <button class="theme-toggle" onclick="toggleTheme()">🌓</button>
 
-  <div id="message"></div>
+  <div id="auth">
+    <h2 id="authTitle">🔐 Register</h2>
+    <input type="text" id="authUsername" placeholder="Username"/><br/>
+    <input type="email" id="authEmail" placeholder="Email"/><br/>
+    <input type="password" id="authPassword" placeholder="Password"/><br/>
+    <button onclick="submitAuth()" id="authButton">Register</button>
+    <br/>
+    <button onclick="toggleAuth()" id="toggleButton">Switch to Login</button>
+  </div>
 
-  <!-- Register Form -->
-  <section id="register-section">
-    <h2>Register</h2>
-    <form id="register-form">
-      <input type="text" id="reg-username" placeholder="Username" required />
-      <input type="email" id="reg-email" placeholder="Email" required />
-      <input type="password" id="reg-password" placeholder="Password" required />
-      <button type="submit">Register</button>
-    </form>
-    <p>Already have an account? <button id="show-login-btn">Login here</button></p>
-  </section>
+  <div id="dashboard">
+    <button onclick="logout()" style="float:right">Logout</button>
+    <h2>💬 Leave a Comment</h2>
+    <input type="text" id="name" placeholder="Your Name" disabled/><br/>
+    <textarea id="comment" placeholder="Your Comment 😊"></textarea><br/>
+    <button onclick="submitComment()">Post Comment</button>
 
-  <!-- Login Form -->
-  <section id="login-section" style="display:none;">
-    <h2>Login</h2>
-    <form id="login-form">
-      <input type="text" id="login-username" placeholder="Username" required />
-      <input type="password" id="login-password" placeholder="Password" required />
-      <button type="submit">Login</button>
-    </form>
-    <p>Don't have an account? <button id="show-register-btn">Register here</button></p>
-  </section>
+    <div id="comments"></div>
+  </div>
 
-  <!-- Comments Section -->
-  <section id="comment-section" style="display:none;">
-    <h2>Comments</h2>
-    <form id="comment-form">
-      <textarea id="comment-input" placeholder="Write a comment..." rows="3" required></textarea>
-      <button type="submit">Post Comment</button>
-    </form>
-    <ul id="comments-list"></ul>
-    <button id="logout-btn">Logout</button>
-  </section>
-</div>
+  <script>
+    let isRegister = true;
 
-<script>
-  const modeToggleBtn = document.getElementById('mode-toggle');
-  const bodyEl = document.body;
-
-  // Load saved mode
-  if(localStorage.getItem('mode') === 'dark') {
-    bodyEl.classList.add('dark');
-    modeToggleBtn.textContent = '☀️';
-  } else {
-    modeToggleBtn.textContent = '🌙';
-  }
-
-  modeToggleBtn.onclick = () => {
-    if(bodyEl.classList.contains('dark')) {
-      bodyEl.classList.remove('dark');
-      modeToggleBtn.textContent = '🌙';
-      localStorage.setItem('mode', 'light');
-    } else {
-      bodyEl.classList.add('dark');
-      modeToggleBtn.textContent = '☀️';
-      localStorage.setItem('mode', 'dark');
-    }
-  };
-
-  const registerSection = document.getElementById('register-section');
-  const loginSection = document.getElementById('login-section');
-  const commentSection = document.getElementById('comment-section');
-  const messageDiv = document.getElementById('message');
-
-  const registerForm = document.getElementById('register-form');
-  const loginForm = document.getElementById('login-form');
-  const commentForm = document.getElementById('comment-form');
-  const commentsList = document.getElementById('comments-list');
-
-  const showLoginBtn = document.getElementById('show-login-btn');
-  const showRegisterBtn = document.getElementById('show-register-btn');
-  const logoutBtn = document.getElementById('logout-btn');
-
-  // To track reply form state & target comment
-  let replyingTo = null;
-
-  // Dummy Users & Comments (simulate backend with localStorage)
-  let users = JSON.parse(localStorage.getItem('users') || '[]');
-  let currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
-  let comments = JSON.parse(localStorage.getItem('comments') || '[]');
-
-  // Show message helper
-  function showMessage(text, success=true) {
-    messageDiv.textContent = text;
-    messageDiv.className = success ? '' : 'error';
-    setTimeout(() => {
-      messageDiv.textContent = '';
-      messageDiv.className = '';
-    }, 3000);
-  }
-
-  // Switch between Register and Login forms
-  showLoginBtn.onclick = () => {
-    registerSection.style.display = 'none';
-    loginSection.style.display = 'block';
-  };
-
-  showRegisterBtn.onclick = () => {
-    loginSection.style.display = 'none';
-    registerSection.style.display = 'block';
-  };
-
-  // Register form submit
-  registerForm.onsubmit = e => {
-    e.preventDefault();
-    const username = document.getElementById('reg-username').value.trim();
-    const email = document.getElementById('reg-email').value.trim();
-    const password = document.getElementById('reg-password').value;
-
-    if(users.find(u => u.username.toLowerCase() === username.toLowerCase())) {
-      showMessage('Username already taken', false);
-      return;
+    function toggleTheme() {
+      document.body.classList.toggle('light');
     }
 
-    users.push({ username, email, password });
-    localStorage.setItem('users', JSON.stringify(users));
-    showMessage('Registered successfully! Please login.');
-    registerForm.reset();
-    registerSection.style.display = 'none';
-    loginSection.style.display = 'block';
-  };
-
-  // Login form submit
-  loginForm.onsubmit = e => {
-    e.preventDefault();
-    const username = document.getElementById('login-username').value.trim();
-    const password = document.getElementById('login-password').value;
-
-    const user = users.find(u => u.username.toLowerCase() === username.toLowerCase() && u.password === password);
-    if(!user) {
-      showMessage('Invalid username or password', false);
-      return;
+    function toggleAuth() {
+      isRegister = !isRegister;
+      document.getElementById('authTitle').innerText = isRegister ? '🔐 Register' : '🔑 Login';
+      document.getElementById('authButton').innerText = isRegister ? 'Register' : 'Login';
+      document.getElementById('toggleButton').innerText = isRegister ? 'Switch to Login' : 'Switch to Register';
+      document.getElementById('authEmail').style.display = isRegister ? 'block' : 'none';
     }
-    currentUser = user;
-    localStorage.setItem('currentUser', JSON.stringify(currentUser));
-    showMessage(`Welcome, ${currentUser.username}!`);
-    loginForm.reset();
-    loginSection.style.display = 'none';
-    commentSection.style.display = 'block';
-    loadComments();
-  };
 
-  // Logout
-  logoutBtn.onclick = () => {
-    currentUser = null;
-    localStorage.removeItem('currentUser');
-    commentSection.style.display = 'none';
-    loginSection.style.display = 'block';
-    showMessage('Logged out successfully');
-    removeReplyForm();
-  };
+    function submitAuth() {
+      const username = document.getElementById('authUsername').value.trim();
+      const email = document.getElementById('authEmail').value.trim();
+      const password = document.getElementById('authPassword').value.trim();
+      if (!username || !password || (isRegister && !email)) return alert("Fill all required fields");
 
-  // Load comments and render
-  function loadComments() {
-    commentsList.innerHTML = '';
-    // Sort by time ascending
-    comments.sort((a,b) => a.createdAt - b.createdAt);
-
-    comments.forEach(comment => {
-      const li = document.createElement('li');
-      li.className = 'comment-item';
-
-      const headerDiv = document.createElement('div');
-      headerDiv.className = 'comment-header';
-
-      const userSpan = document.createElement('span');
-      userSpan.className = 'comment-user';
-      userSpan.textContent = comment.user;
-
-      const dateSpan = document.createElement('span');
-      dateSpan.className = 'comment-date';
-      dateSpan.textContent = new Date(comment.createdAt).toLocaleString();
-
-      headerDiv.appendChild(userSpan);
-      headerDiv.appendChild(dateSpan);
-
-      const textP = document.createElement('p');
-      textP.className = 'comment-text';
-      textP.textContent = comment.text;
-
-      li.appendChild(headerDiv);
-      li.appendChild(textP);
-
-      // Reply button
-      const replyBtn = document.createElement('button');
-      replyBtn.className = 'reply-button';
-      replyBtn.textContent = replyingTo === comment.id ? 'Cancel Reply' : 'Reply';
-      replyBtn.onclick = () => toggleReplyForm(comment.id, li);
-      li.appendChild(replyBtn);
-
-      // Show replies if any
-      if(comment.replies && comment.replies.length > 0) {
-        const replyUl = document.createElement('ul');
-        replyUl.className = 'reply-list';
-        comment.replies.forEach(reply => {
-          const replyLi = document.createElement('li');
-          replyLi.className = 'comment-item';
-
-          const replyHeader = document.createElement('div');
-          replyHeader.className = 'comment-header';
-
-          const replyUser = document.createElement('span');
-          replyUser.className = 'comment-user';
-          replyUser.textContent = reply.user;
-
-          const replyDate = document.createElement('span');
-          replyDate.className = 'comment-date';
-          replyDate.textContent = new Date(reply.createdAt).toLocaleString();
-
-          replyHeader.appendChild(replyUser);
-          replyHeader.appendChild(replyDate);
-
-          const replyText = document.createElement('p');
-          replyText.className = 'comment-text';
-          replyText.textContent = reply.text;
-
-          replyLi.appendChild(replyHeader);
-          replyLi.appendChild(replyText);
-          replyUl.appendChild(replyLi);
+      fetch(isRegister ? '/register' : '/login', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ username, email, password })
+      }).then(res => res.json())
+        .then(data => {
+          if (data.token) {
+            localStorage.setItem('token', data.token);
+            localStorage.setItem('username', username);
+            showDashboard();
+          } else {
+            alert(data.error || 'Authentication failed');
+          }
         });
-        li.appendChild(replyUl);
-      }
-
-      commentsList.appendChild(li);
-    });
-  }
-
-  // Reply form toggling function
-  function toggleReplyForm(commentId, parentLi) {
-    if(replyingTo === commentId) {
-      // Cancel reply
-      removeReplyForm();
-      replyingTo = null;
-      loadComments();
-      return;
     }
-    removeReplyForm();
-    replyingTo = commentId;
 
-    // Create reply form
-    const form = document.createElement('form');
-    form.className = 'reply-form';
-
-    const textarea = document.createElement('textarea');
-    textarea.rows = 2;
-    textarea.placeholder = 'Write your reply...';
-    textarea.required = true;
-    form.appendChild(textarea);
-
-    const btnSubmit = document.createElement('button');
-    btnSubmit.type = 'submit';
-    btnSubmit.textContent = 'Post Reply';
-    form.appendChild(btnSubmit);
-
-    const btnCancel = document.createElement('button');
-    btnCancel.type = 'button';
-    btnCancel.textContent = 'Cancel Reply';
-    btnCancel.className = 'cancel-reply-btn';
-    btnCancel.onclick = () => {
-      removeReplyForm();
-      replyingTo = null;
+    function showDashboard() {
+      document.getElementById('auth').style.display = 'none';
+      document.getElementById('dashboard').style.display = 'block';
+      document.getElementById('name').value = localStorage.getItem('username');
       loadComments();
-    };
-    form.appendChild(btnCancel);
+    }
 
-    // Append form to parent comment LI
-    parentLi.appendChild(form);
-    textarea.focus();
+    function logout() {
+      localStorage.removeItem('token');
+      localStorage.removeItem('username');
+      document.getElementById('auth').style.display = 'block';
+      document.getElementById('dashboard').style.display = 'none';
+    }
 
-    // Reply form submit handler
-    form.onsubmit = e => {
-      e.preventDefault();
-      const replyText = textarea.value.trim();
-      if(!replyText) return;
+    function submitComment() {
+      const name = document.getElementById('name').value.trim();
+      const comment = document.getElementById('comment').value.trim();
+      if (!name || !comment) return alert("Fill out both fields!");
 
-      // Find comment to reply to
-      const comment = comments.find(c => c.id === commentId);
-      if(!comment) {
-        showMessage('Comment not found', false);
-        return;
-      }
-      if(!comment.replies) comment.replies = [];
-      comment.replies.push({
-        id: Date.now() + Math.random(),
-        user: currentUser.username,
-        text: replyText,
-        createdAt: Date.now()
+      fetch('/comments', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({ name, comment })
+      }).then(res => {
+        if(res.ok) {
+          document.getElementById('comment').value = '';
+          loadComments();
+        }
       });
-
-      localStorage.setItem('comments', JSON.stringify(comments));
-      showMessage('Reply posted!');
-      removeReplyForm();
-      replyingTo = null;
-      loadComments();
-    };
-  }
-
-  function removeReplyForm() {
-    const existingForm = document.querySelector('.reply-form');
-    if(existingForm) {
-      existingForm.remove();
     }
-  }
 
-  // Post new comment (not reply)
-  commentForm.onsubmit = e => {
-    e.preventDefault();
-    const commentText = document.getElementById('comment-input').value.trim();
-    if(!commentText) return;
+    function loadComments() {
+      fetch('/comments')
+        .then(res => res.json())
+        .then(data => {
+          const container = document.getElementById('comments');
+          container.innerHTML = data.map(c => `
+            <div class="comment">
+              <strong>${c.name}</strong><br/>
+              <span>${c.comment}</span><br/>
+              <small>${new Date(c.date).toLocaleString()}</small><br/>
+              <input type="text" placeholder="Reply..." onchange="submitReply('${c._id}', this.value)"/>
+              <div id="replies-${c._id}">
+                ${c.replies?.map(r => `<div class='reply'><strong>${r.name}</strong>: ${r.comment}<br/><small>${new Date(r.date).toLocaleString()}</small></div>`).join('') || ''}
+              </div>
+            </div>
+          `).join('');
+        });
+    }
 
-    comments.push({
-      id: Date.now() + Math.random(),
-      user: currentUser.username,
-      text: commentText,
-      createdAt: Date.now(),
-      replies: []
-    });
+    function submitReply(parentId, value) {
+      const name = localStorage.getItem('username');
+      if (!name || !value) return;
+      fetch('/comments/reply', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({ parentId, name, comment: value })
+      }).then(res => {
+        if(res.ok) loadComments();
+      });
+    }
 
-    localStorage.setItem('comments', JSON.stringify(comments));
-    showMessage('Comment posted!');
-    commentForm.reset();
-    loadComments();
-  };
-
-  // On page load, check if user logged in
-  function checkLogin() {
-    if(currentUser) {
-      registerSection.style.display = 'none';
-      loginSection.style.display = 'none';
-      commentSection.style.display = 'block';
-      loadComments();
-      showMessage(`Welcome back, ${currentUser.username}!`);
+    // Auto login if token exists
+    if (localStorage.getItem('token') && localStorage.getItem('username')) {
+      showDashboard();
     } else {
-      registerSection.style.display = 'block';
-      loginSection.style.display = 'none';
-      commentSection.style.display = 'none';
+      document.getElementById('auth').style.display = 'block';
     }
-  }
-
-  checkLogin();
-
-</script>
+  </script>
 </body>
 </html>

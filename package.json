@@ -1,16 +1,16 @@
 {
-  "name": "login-register-comment-system",
+  "name": "comment-system",
   "version": "1.0.0",
-  "description": "Simple login/register and comment system with Node.js, MongoDB, and Express",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
-    "connect-mongo": "^4.6.0",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
     "express": "^4.18.2",
-    "express-session": "^1.17.3",
-    "mongoose": "^7.3.4"
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^7.6.1"
   }
 }
